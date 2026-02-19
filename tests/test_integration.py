@@ -77,3 +77,4 @@ def test_integration_dry_run(tmp_path, caplog):
 
     # Verify no files were copied
     assert not list(output.rglob("*.jpg"))
+    assert img_path.exists()

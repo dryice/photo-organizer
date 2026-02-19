@@ -2,8 +2,8 @@
 
 import logging
 import shutil
+from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 from photo_organizer.extractors.base import ExtractionResult
 from photo_organizer.utils import sanitize_filename
@@ -11,18 +11,23 @@ from photo_organizer.utils import sanitize_filename
 logger = logging.getLogger(__name__)
 
 
+class TransferMode(Enum):
+    COPY = "copy"
+    MOVE = "move"
+
+
 class Organizer:
     """Organize files into structured output directory."""
 
-    def __init__(self, output_root: Path, dry_run: bool = False):
-        """Initialize organizer.
-
-        Args:
-            output_root: Root directory for organized files
-            dry_run: If True, only log actions without executing
-        """
+    def __init__(
+        self,
+        output_root: Path,
+        dry_run: bool = False,
+        mode: TransferMode = TransferMode.COPY,
+    ):
         self.output_root = output_root
         self.dry_run = dry_run
+        self.mode = mode
 
     def build_target_path(self, source_path: Path, metadata: ExtractionResult) -> Path:
         """Build target path based on metadata.
@@ -46,28 +51,27 @@ class Organizer:
         return target_path
 
     def organize_file(self, source_path: Path, target_path: Path) -> bool:
-        """Copy file from source to target.
-
-        Args:
-            source_path: Source file path
-            target_path: Target file path
-
-        Returns:
-            True if successful, False otherwise
-        """
         try:
             if self.dry_run:
-                logger.info(f"[DRY RUN] Would copy: {source_path} -> {target_path}")
+                verb = "move" if self.mode == TransferMode.MOVE else "copy"
+                logger.info(f"[DRY RUN] Would {verb}: {source_path} -> {target_path}")
                 return True
 
             # Create target directory if needed
             target_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Copy the file
-            shutil.copy2(source_path, target_path)
-            logger.info(f"Copied: {source_path.name} -> {target_path}")
+            if self.mode == TransferMode.MOVE:
+                if target_path.exists():
+                    target_path.unlink()
+
+                shutil.move(str(source_path), str(target_path))
+                logger.info(f"Moved: {source_path.name} -> {target_path}")
+            else:
+                shutil.copy2(source_path, target_path)
+                logger.info(f"Copied: {source_path.name} -> {target_path}")
             return True
 
         except Exception as e:
-            logger.error(f"Failed to copy {source_path}: {e}")
+            verb = "move" if self.mode == TransferMode.MOVE else "copy"
+            logger.error(f"Failed to {verb} {source_path}: {e}")
             return False

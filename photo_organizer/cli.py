@@ -11,7 +11,7 @@ from photo_organizer.extractors.exif import ExifExtractor
 from photo_organizer.extractors.filename import FilenameExtractor
 from photo_organizer.extractors.fallback import FallbackExtractor
 from photo_organizer.date_resolver import DateResolver
-from photo_organizer.organizer import Organizer
+from photo_organizer.organizer import Organizer, TransferMode
 from photo_organizer.duplicates import DuplicateHandler, DuplicateStrategy
 from photo_organizer.utils import setup_logging
 
@@ -51,7 +51,14 @@ Examples:
         "--dry-run",
         "-n",
         action="store_true",
-        help="Preview actions without copying files",
+        help="Preview actions without modifying files",
+    )
+
+    parser.add_argument(
+        "--mode",
+        choices=[mode.value for mode in TransferMode],
+        default=TransferMode.COPY.value,
+        help="How to transfer files into output: copy (default) or move",
     )
 
     parser.add_argument(
@@ -98,7 +105,11 @@ def main(args: Optional[List[str]] = None) -> int:
     strategy = DuplicateStrategy(parsed_args.on_duplicate)
     duplicate_handler = DuplicateHandler(strategy)
 
-    organizer = Organizer(output_root=parsed_args.output, dry_run=parsed_args.dry_run)
+    organizer = Organizer(
+        output_root=parsed_args.output,
+        dry_run=parsed_args.dry_run,
+        mode=TransferMode(parsed_args.mode),
+    )
 
     # Process files
     logger.info(f"Scanning {parsed_args.source}...")

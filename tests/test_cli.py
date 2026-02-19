@@ -14,6 +14,13 @@ def test_parse_args_defaults():
     assert args.dry_run is False
     assert args.on_duplicate == "rename"
     assert args.log_level == "INFO"
+    assert args.mode == "copy"
+
+
+@pytest.mark.parametrize("mode", ["copy", "move"])
+def test_parse_args_mode(mode):
+    args = parse_args(["--source", "/input", "--output", "/output", "--mode", mode])
+    assert args.mode == mode
 
 
 def test_parse_args_dry_run():

@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 from pathlib import Path
-from photo_organizer.organizer import Organizer
+from photo_organizer.organizer import Organizer, TransferMode
 from photo_organizer.extractors.base import ExtractionResult
 
 
@@ -48,3 +48,23 @@ def test_organize_file_copies(tmp_path):
     assert target.exists()
     assert target.read_text() == "photo content"
     assert photo.exists()  # Source should remain
+
+
+def test_organize_file_moves(tmp_path):
+    source = tmp_path / "source"
+    output = tmp_path / "output"
+    source.mkdir()
+    output.mkdir()
+
+    photo = source / "test.jpg"
+    photo.write_text("photo content")
+
+    organizer = Organizer(output, mode=TransferMode.MOVE)
+    result = ExtractionResult(date=datetime(2024, 10, 15), camera_model="TestCamera")
+
+    target = organizer.build_target_path(photo, result)
+    assert organizer.organize_file(photo, target)
+
+    assert target.exists()
+    assert target.read_text() == "photo content"
+    assert not photo.exists()
