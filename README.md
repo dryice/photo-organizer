@@ -23,49 +23,59 @@ A Python CLI tool to organize photo and video files from a source directory into
 
 ## Installation
 
+This project uses [uv](https://docs.astral.sh/uv/) for fast, reliable Python package management.
+
 ```bash
 # Clone or navigate to the repository
 cd photo-organizer
 
-# Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+# Create virtual environment and install dependencies
+uv venv
+uv pip install -e ".[dev]"
 
-# Install package
-pip install -e .
+# Or run without activating (uv run handles the venv automatically)
+uv run photo-organizer --help
 ```
+
+**Requirements:**
+- Python 3.8+
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager
 
 ## Usage
 
 ### Basic Usage
 
 ```bash
+# Using uv run (recommended - no venv activation needed)
+uv run python -m photo_organizer --source /path/to/photos --output /path/to/organized
+
+# Or if you activated the virtual environment
 python -m photo_organizer --source /path/to/photos --output /path/to/organized
 ```
 
 ### Dry Run (Preview Only)
 
 ```bash
-python -m photo_organizer --source /path/to/photos --output /path/to/organized --dry-run
+uv run python -m photo_organizer --source /path/to/photos --output /path/to/organized --dry-run
 ```
 
 ### Handle Duplicates
 
 ```bash
 # Skip duplicates
-python -m photo_organizer --source /path/to/photos --output /path/to/organized --on-duplicate skip
+uv run python -m photo_organizer --source /path/to/photos --output /path/to/organized --on-duplicate skip
 
 # Overwrite duplicates
-python -m photo_organizer --source /path/to/photos --output /path/to/organized --on-duplicate overwrite
+uv run python -m photo_organizer --source /path/to/photos --output /path/to/organized --on-duplicate overwrite
 
 # Rename duplicates (default)
-python -m photo_organizer --source /path/to/photos --output /path/to/organized --on-duplicate rename
+uv run python -m photo_organizer --source /path/to/photos --output /path/to/organized --on-duplicate rename
 ```
 
 ### Debug Logging
 
 ```bash
-python -m photo_organizer --source /path/to/photos --output /path/to/organized --log-level DEBUG
+uv run python -m photo_organizer --source /path/to/photos --output /path/to/organized --log-level DEBUG
 ```
 
 ## Output Structure
@@ -97,14 +107,14 @@ output/
 ### Running Tests
 
 ```bash
-# Install test dependencies
-pip install pytest
-
 # Run all tests
-pytest tests/ -v
+uv run pytest tests/ -v
 
 # Run specific test file
-pytest tests/test_scanner.py -v
+uv run pytest tests/test_scanner.py -v
+
+# Run with coverage
+uv run pytest tests/ --cov=photo_organizer --cov-report=html
 ```
 
 ### Project Structure
@@ -136,12 +146,21 @@ tests/                       # Test suite
 └── test_integration.py      # Integration tests
 ```
 
+## Dependency Management
+
+This project uses `uv` which handles dependencies automatically:
+
+- **Runtime dependencies** (Pillow) are defined in `pyproject.toml` under `[project.dependencies]`
+- **Development dependencies** (pytest) are in `[project.optional-dependencies.dev]`
+- **Transitive dependencies** (pluggy, pygments, etc.) are resolved automatically by uv
+- To update dependencies: `uv pip install -e ".[dev]" --upgrade`
+
 ## Examples
 
 ### Organize iPhone Photos
 
 ```bash
-python -m photo_organizer \
+uv run python -m photo_organizer \
   --source ~/Pictures/iPhone \
   --output ~/Pictures/Organized \
   --dry-run
@@ -150,7 +169,7 @@ python -m photo_organizer \
 ### Process RAW Files
 
 ```bash
-python -m photo_organizer \
+uv run python -m photo_organizer \
   --source ~/Pictures/RAW \
   --output ~/Pictures/Organized \
   --on-duplicate skip \

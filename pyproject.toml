@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "photo-organizer"
@@ -11,12 +11,16 @@ dependencies = [
     "Pillow>=10.0.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
 [project.scripts]
 photo-organizer = "photo_organizer.cli:main"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["photo_organizer*"]
+[tool.hatch.build.targets.wheel]
+packages = ["photo_organizer"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
