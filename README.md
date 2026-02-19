@@ -10,7 +10,11 @@ A Python CLI tool to organize photo and video files from a source directory into
   2. Filename patterns (e.g., `IMG_20241015_143000.jpg`)
   3. Folder structure (e.g., `/2024/10/15/`)
   4. File system dates (fallback)
-- 📷 **Camera Model Detection** - Extracts camera info from EXIF or folder names
+- 📷 **Enhanced Camera Model Detection** - Extracts camera info from multiple sources:
+  - EXIF metadata (Make and Model tags)
+  - Device-specific filename patterns (Samsung, Sony, Panasonic, DJI, GoPro, Canon, Huawei, HTC, etc.)
+  - Folder structure (nested camera folders, camera-only directories)
+  - Intelligent fallback for missing camera information
 - 🔄 **Duplicate Handling** - Skip, overwrite, or auto-rename duplicates
 - 🧪 **Dry Run Mode** - Preview operations without modifying files
 - 📊 **Progress Logging** - See what's happening with configurable verbosity
