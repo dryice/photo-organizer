@@ -45,3 +45,6 @@ Thumbs.db
 
 # Project specific
 .worktrees/
+
+# Documentation (design docs, temporary)
+docs/
