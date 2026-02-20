@@ -1,5 +1,7 @@
 # Photo & Video Organizer
 
+[![Tests](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/tests.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/tests.yml)
+
 A Python CLI tool to organize photo and video files from a source directory into a structured output directory based on date and camera model information.
 
 ## Features
