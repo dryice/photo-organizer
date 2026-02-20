@@ -67,14 +67,18 @@ class ExifExtractor(MetadataExtractor):
         make = exif.get(0x010F, "")  # Make
         model = exif.get(0x0110, "")  # Model
 
-        # Clean up the values
         make = make.strip() if make else ""
         model = model.strip() if model else ""
 
-        # If model already contains make, just use model
         if make and model:
             if model.startswith(make):
                 return model
             return f"{make} {model}".strip()
 
-        return model or make or None
+        if model:
+            return model
+
+        if make:
+            return make
+
+        return None
