@@ -86,12 +86,12 @@ def test_sony_dsc_pattern_with_date():
     assert result.camera_model == "Sony"
 
 
-def test_panasonic_pxl_pattern():
+def test_pixel_pxl_pattern():
     extractor = FilenameExtractor()
     result = extractor.extract(Path("/photos/PXL_20240218_001.jpg"))
 
     assert result is not None
-    assert result.camera_model == "Panasonic"
+    assert result.camera_model == "Pixel"
 
 
 def test_dji_dji_pattern():
@@ -99,7 +99,7 @@ def test_dji_dji_pattern():
     result = extractor.extract(Path("/photos/DJI_20240510_001.jpg"))
 
     assert result is not None
-    assert result.camera_model == "Dji"
+    assert result.camera_model == "DJI"
 
 
 def test_gopro_gp_pattern():
@@ -114,7 +114,7 @@ def test_gopro_gp_pattern_with_date():
     result = extractor.extract(Path("/photos/GP_20240601_001.jpg"))
 
     assert result is not None
-    assert result.camera_model == "Gopro"
+    assert result.camera_model == "GoPro"
 
 
 def test_canon_pattern():
@@ -138,14 +138,16 @@ def test_htc_htc_pattern():
     result = extractor.extract(Path("/photos/HTC_20240615_001.jpg"))
 
     assert result is not None
-    assert result.camera_model == "Htc"
+    assert result.camera_model == "HTC"
 
 
 def test_camera_only_folder():
     extractor = FilenameExtractor()
     result = extractor.extract(Path("/Photos/Nikon/IMG_0001.jpg"))
 
-    assert result is None
+    assert result is not None
+    assert result.camera_model == "Nikon"
+    assert result.date is None
 
 
 def test_nested_camera_folder():

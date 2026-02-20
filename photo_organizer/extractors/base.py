@@ -11,7 +11,7 @@ from typing import Optional
 class ExtractionResult:
     """Result from metadata extraction."""
 
-    date: datetime
+    date: Optional[datetime] = None
     camera_model: Optional[str] = None
 
 

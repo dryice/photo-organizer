@@ -19,23 +19,21 @@ class FilenameExtractor(MetadataExtractor):
         # Samsung
         "samsung_dcim": r"DCIM_\d+",
         "samsung_samsung_old": r"SAMSUNG_\d+",
-        "samsung_mobile": r"HERO_\d+|SM-\w\d+|SCH-\w\d+",  # SM/ SCH cameras
+        "samsung_mobile": r"SM-\w+|SCH-\w+",  # SM/ SCH cameras (e.g., SM-G991B, SCH-I535)
         # Sony
         "sony_dsc": r"DSC_\d{4}",
-        "sony_ilce": r"ILCE-\d{4}",  # ILCE sensors
-        # Panasonic
-        "panasonic_pxl": r"PXL_\d{4}",  # LUMIX cameras
+        "sony_ilce": r"ILCE-\d+\w*",  # ILCE sensors (e.g., ILCE-7RM4, ILCE-6600, ILCE-7M3)
+        # Google Pixel
+        "pixel_pxl": r"PXL_\d{4}",  # Google Pixel phones
         # DJI
         "dji_dji": r"DJI_\d{4}",  # Drones
-        # Xiaomi
-        "xiaomi_hero": r"HERO_\d{4}",  # Action cameras
         # GoPro
         "gopro_gp": r"GP\d{6}|GP_\d+",  # HERO/5/6/7/8/10/12 cameras
-        # MV
-        "meizu_mvi": r"MVI_\d{4}",
+        # Canon video prefix (PowerShot/EOS)
+        "canon_mvi": r"MVI_\d{4}",
         # Canon
         "canon_canon": r"Canon_\d{4}",
-        "canon_older": r"Canon.*",
+        "canon_older": r"\bCanon(?:_.*|$)",
         # Huawei
         "huawei_honor": r"Honor_\d{4}",  # Honor series
         # HTC
@@ -43,6 +41,54 @@ class FilenameExtractor(MetadataExtractor):
         # Additional device-specific patterns that include camera model
         "model_in_folder": r"(?:iPhone|Pixel|Galaxy|Nexus|Redmi|Poco|Moto|OnePlus|ROG|Zenfone|Mi A|Mi Mix|Redmi Note|Find X|CPH|GMK|Pixel Fold|Surface|Tecno|Honor|View|Vivo|Oppo|Realme|Nubia|Nokia|Lumia|Motorola|Asus|Blackview|Lenovo|Alcatel|AGM|Infinix|TCL|ZTE|Cat|BQ|Ulefone|Fairphone|Nothing|Palm|Orange|Sharp|T-Mobile|Vertu|Xperia|Xperia pro|Sony Ericsson)",
     }
+
+    # Brand name mappings for proper capitalization
+    BRAND_NAME_MAP = {
+        "dji": "DJI",
+        "htc": "HTC",
+        "gopro": "GoPro",
+    }
+
+    # Camera brands for folder-based detection
+    CAMERA_BRANDS = [
+        "iphone",
+        "ipad",
+        "ipod",
+        "pixel",
+        "galaxy",
+        "nexus",
+        "redmi",
+        "poco",
+        "moto",
+        "oneplus",
+        "rog",
+        "zenfone",
+        "nikon",
+        "canon",
+        "sony",
+        "panasonic",
+        "lumix",
+        "fujifilm",
+        "olympus",
+        "pentax",
+        "leica",
+        "hasselblad",
+        "dji",
+        "gopro",
+        "huawei",
+        "honor",
+        "htc",
+        "xiaomi",
+        "oppo",
+        "vivo",
+        "realme",
+        "nokia",
+        "motorola",
+        "asus",
+        "lenovo",
+        "lg",
+        "samsung",
+    ]
 
     @property
     def name(self) -> str:
@@ -64,7 +110,7 @@ class FilenameExtractor(MetadataExtractor):
             if folder_camera:
                 camera_model = folder_camera
 
-        if date:
+        if date or camera_model:
             return ExtractionResult(date=date, camera_model=camera_model)
 
         return None
@@ -77,8 +123,10 @@ class FilenameExtractor(MetadataExtractor):
             if re.search(pattern.lower(), name_lower):
                 parts = pattern_name.split("_")
                 if len(parts) >= 2:
-                    return parts[0].capitalize()
-                return pattern_name.replace("_", " ").capitalize()
+                    brand = parts[0].lower()
+                    return self.BRAND_NAME_MAP.get(brand, brand.capitalize())
+                brand = pattern_name.split("_")[0].lower()
+                return self.BRAND_NAME_MAP.get(brand, brand.capitalize())
 
         return None
 
@@ -128,7 +176,7 @@ class FilenameExtractor(MetadataExtractor):
             "pictures",
             "images",
             "media",
-            "DCIM",
+            "dcim",
         }
 
         parts = list(folder.parts)
@@ -161,49 +209,10 @@ class FilenameExtractor(MetadataExtractor):
                     camera_model = detected_camera
                     break
 
-                camera_brands = [
-                    "iphone",
-                    "ipad",
-                    "ipod",
-                    "pixel",
-                    "galaxy",
-                    "nexus",
-                    "redmi",
-                    "poco",
-                    "moto",
-                    "oneplus",
-                    "rog",
-                    "zenfone",
-                    "nikon",
-                    "canon",
-                    "sony",
-                    "panasonic",
-                    "lumix",
-                    "fujifilm",
-                    "olympus",
-                    "pentax",
-                    "leica",
-                    "hasselblad",
-                    "dji",
-                    "gopro",
-                    "huawei",
-                    "honor",
-                    "htc",
-                    "xiaomi",
-                    "oppo",
-                    "vivo",
-                    "realme",
-                    "nokia",
-                    "motorola",
-                    "asus",
-                    "lenovo",
-                    "lg",
-                    "samsung",
-                ]
-
                 folder_name_lower = folder_name.lower()
-                for brand in camera_brands:
-                    if brand in folder_name_lower:
+                for brand in self.CAMERA_BRANDS:
+                    pattern = r"\b" + re.escape(brand) + r"\b"
+                    if re.search(pattern, folder_name_lower):
                         camera_model = folder_name
                         break
 
