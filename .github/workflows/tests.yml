@@ -18,11 +18,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
 
-      - uses: astral-sh/setup-uv@v3
+      - run: python -m pip install --upgrade pip setuptools wheel
 
-      - run: uv venv
+      - run: pip install -e ".[dev]"
 
-      - run: uv pip install -e ".[dev]"
-
-      - run: uv run pytest tests/ -v
+      - run: pytest tests/ -v
