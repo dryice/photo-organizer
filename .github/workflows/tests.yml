@@ -21,6 +21,8 @@ jobs:
 
       - uses: astral-sh/setup-uv@v3
 
+      - run: uv venv
+
       - run: uv pip install -e ".[dev]"
 
       - run: uv run pytest tests/ -v
